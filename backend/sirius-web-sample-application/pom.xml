@@ -88,6 +88,21 @@
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.sirius.web</groupId>
+			<artifactId>sirius-web-graphql</artifactId>
+			<version>${sirius.components.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.sirius.web</groupId>
+			<artifactId>sirius-web-services</artifactId>
+			<version>${sirius.components.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.sirius.web</groupId>
+			<artifactId>sirius-web-spring</artifactId>
+			<version>${sirius.components.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.sirius.web</groupId>
 			<artifactId>sirius-web-frontend</artifactId>
 			<version>0.2.10</version>
 		</dependency>
