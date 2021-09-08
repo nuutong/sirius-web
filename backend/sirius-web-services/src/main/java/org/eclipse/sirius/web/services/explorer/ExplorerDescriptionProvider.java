@@ -29,7 +29,6 @@ import org.eclipse.sirius.web.core.api.IObjectService;
 import org.eclipse.sirius.web.emf.services.EditingContext;
 import org.eclipse.sirius.web.representations.Failure;
 import org.eclipse.sirius.web.representations.GetOrCreateRandomIdProvider;
-import org.eclipse.sirius.web.representations.IRepresentation;
 import org.eclipse.sirius.web.representations.IStatus;
 import org.eclipse.sirius.web.representations.VariableManager;
 import org.eclipse.sirius.web.services.api.representations.IRepresentationService;
@@ -118,8 +117,7 @@ public class ExplorerDescriptionProvider implements IExplorerDescriptionProvider
         String kind = ""; //$NON-NLS-1$
         Object self = variableManager.getVariables().get(VariableManager.SELF);
         if (self instanceof RepresentationDescriptor) {
-            IRepresentation representation = ((RepresentationDescriptor) self).getRepresentation();
-            kind = representation.getKind();
+            kind = ((RepresentationDescriptor) self).getKind();
         } else if (self instanceof Resource) {
             kind = DOCUMENT_KIND;
         } else {
