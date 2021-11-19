@@ -51,7 +51,6 @@ import org.eclipse.sirius.web.services.api.projects.Project;
 import org.eclipse.sirius.web.services.api.projects.ProjectManifest;
 import org.eclipse.sirius.web.services.api.projects.RepresentationManifest;
 import org.eclipse.sirius.web.services.api.representations.IRepresentationService;
-import org.eclipse.sirius.web.services.api.representations.RepresentationDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.info.BuildProperties;
@@ -225,16 +224,16 @@ public class ProjectExportService implements IProjectExportService {
     }
 
     /**
-     * Creates a {@link RepresentationManifest} for the given {@link RepresentationDescriptor}.
+     * Creates a {@link RepresentationManifest} for the given {@link IRepresentationMetadata}.
      *
-     * @param representationDescriptor
-     *            The {@link RepresentationDescriptor}
+     * @param representationMetadata
+     *            The {@link IRepresentationMetadata}
      * @param resourceSet
      *            The {@link ResourceSet} containing all loaded documents
-     * @return the {@link RepresentationManifest} for the given {@link RepresentationDescriptor}
+     * @return the {@link RepresentationManifest} for the given {@link IRepresentationMetadata}
      */
-    private RepresentationManifest createRepresentationManifest(IRepresentationMetadata representationDescriptor, ResourceSet resourceSet) {
-        UUID descriptionId = representationDescriptor.getDescriptionId();
+    private RepresentationManifest createRepresentationManifest(IRepresentationMetadata representationMetadata, ResourceSet resourceSet) {
+        UUID descriptionId = representationMetadata.getDescriptionId();
 
         /*
          * If the given descriptionId does not match with an existing IdMappingEntity, the current representation is
@@ -247,8 +246,8 @@ public class ProjectExportService implements IProjectExportService {
         // @formatter:on
 
         String uriFragment = ""; //$NON-NLS-1$
-        if (representationDescriptor instanceof ISemanticRepresentationMetadata) {
-            String targetObjectId = ((ISemanticRepresentationMetadata) representationDescriptor).getTargetObjectId();
+        if (representationMetadata instanceof ISemanticRepresentationMetadata) {
+            String targetObjectId = ((ISemanticRepresentationMetadata) representationMetadata).getTargetObjectId();
             for (Resource resource : resourceSet.getResources()) {
                 EObject eObject = resource.getEObject(targetObjectId);
                 if (eObject != null) {
@@ -262,7 +261,7 @@ public class ProjectExportService implements IProjectExportService {
         }
         // @formatter:off
         return RepresentationManifest.newRepresentationManifest()
-            .type(representationDescriptor.getKind())
+            .type(representationMetadata.getKind())
             .descriptionURI(descriptionURI)
             .targetObjectURI(uriFragment)
             .build();
