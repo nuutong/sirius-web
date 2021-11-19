@@ -22,7 +22,7 @@ import org.eclipse.sirius.web.persistence.entities.ProjectEntity;
 import org.eclipse.sirius.web.persistence.entities.RepresentationEntity;
 import org.eclipse.sirius.web.representations.IRepresentation;
 import org.eclipse.sirius.web.representations.IRepresentationMetadata;
-import org.eclipse.sirius.web.representations.ISemanticRepresentationMetadata;
+import org.eclipse.sirius.web.representations.SemanticRepresentationMetadata;
 import org.eclipse.sirius.web.services.api.representations.RepresentationDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,37 +42,36 @@ public class RepresentationMapper {
         this.objectMapper = Objects.requireNonNull(objectMapper);
     }
 
+    /**
+     * Converts a RepresentationEntity into an IRepresentationMetadata. Use this when you only need the representation's
+     * metadata and not its actual content.
+     *
+     * @param representationEntity
+     *            a representation entity.
+     * @return a lightweight DTO with only the representation's metadata.
+     */
     public IRepresentationMetadata toRepresentationMetadataDTO(RepresentationEntity representationEntity) {
-        return new ISemanticRepresentationMetadata() {
-
-            @Override
-            public UUID getId() {
-                return representationEntity.getId();
-            }
-
-            @Override
-            public UUID getDescriptionId() {
-                return UUID.fromString(representationEntity.getDescriptionId());
-            }
-
-            @Override
-            public String getLabel() {
-                return representationEntity.getLabel();
-            }
-
-            @Override
-            public String getKind() {
-                return representationEntity.getKind();
-            }
-
-            @Override
-            public String getTargetObjectId() {
-                return representationEntity.getTargetObjectId();
-            }
-
-        };
+        // @formatter:off
+        return SemanticRepresentationMetadata.newRepresentationMetadata(representationEntity.getId())
+                                             .descriptionId(UUID.fromString(representationEntity.getDescriptionId()))
+                                             .label(representationEntity.getLabel())
+                                             .kind(representationEntity.getKind())
+                                             .targetObjectId(representationEntity.getTargetObjectId())
+                                             .build();
+        // @formatter:on
     }
 
+    /**
+     * Converts a RepresentationEntity into a full RepresentationDescriptor. Use this only when you need the
+     * representation's actual content in addition to its metadata.
+     *
+     * @param representationEntity
+     *            a representation entity.
+     * @param representationType
+     *            the concrete Java class to use the deserialize the representation's content.
+     * @return a heavy-weight DTO with the representation's metadata and complete deserialized content (as an instanceof
+     *         of the specified representationType).
+     */
     public RepresentationDescriptor toDTO(RepresentationEntity representationEntity, Class<? extends IRepresentation> representationType) {
         try {
             IRepresentation representation = this.objectMapper.readValue(representationEntity.getContent(), representationType);

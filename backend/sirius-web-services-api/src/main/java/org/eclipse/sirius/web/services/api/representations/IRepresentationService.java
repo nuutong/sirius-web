@@ -29,7 +29,7 @@ public interface IRepresentationService {
 
     Optional<IRepresentationMetadata> getRepresentationDescriptorForProjectId(UUID projectId, UUID representationId);
 
-    List<IRepresentationMetadata> getRepresentationDescriptorsForProjectId(UUID projectId);
+    List<RepresentationDescriptor> getRepresentationDescriptorsForProjectId(UUID projectId);
 
     List<IRepresentationMetadata> getRepresentationDescriptorsForObjectId(String objectId);
 

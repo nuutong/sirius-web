@@ -34,6 +34,7 @@ import org.eclipse.sirius.web.services.api.representations.IRepresentationServic
 import org.eclipse.sirius.web.services.api.representations.RepresentationDescriptor;
 import org.eclipse.sirius.web.spring.collaborative.api.IDanglingRepresentationDeletionService;
 import org.eclipse.sirius.web.spring.collaborative.api.IRepresentationPersistenceService;
+import org.eclipse.sirius.web.spring.collaborative.api.IStdDeserializerProvider;
 import org.springframework.stereotype.Service;
 
 import io.micrometer.core.instrument.MeterRegistry;
@@ -55,17 +56,19 @@ public class RepresentationService implements IRepresentationService, IRepresent
 
     private final IRepresentationRepository representationRepository;
 
+    private final IStdDeserializerProvider<IRepresentation> representationDeserializerProvider;
+
     private final ObjectMapper objectMapper;
 
     private final Timer timer;
 
     public RepresentationService(IObjectService objectService, IProjectRepository projectRepository, IRepresentationRepository representationRepository, ObjectMapper objectMapper,
-            MeterRegistry meterRegistry) {
+            IStdDeserializerProvider<IRepresentation> representationDeserializerProvider, MeterRegistry meterRegistry) {
         this.objectService = Objects.requireNonNull(objectService);
         this.projectRepository = Objects.requireNonNull(projectRepository);
         this.representationRepository = Objects.requireNonNull(representationRepository);
         this.objectMapper = Objects.requireNonNull(objectMapper);
-
+        this.representationDeserializerProvider = Objects.requireNonNull(representationDeserializerProvider);
         this.timer = Timer.builder(TIMER_NAME).register(meterRegistry);
     }
 
@@ -80,11 +83,15 @@ public class RepresentationService implements IRepresentationService, IRepresent
     }
 
     @Override
-    public List<IRepresentationMetadata> getRepresentationDescriptorsForProjectId(UUID projectId) {
+    public List<RepresentationDescriptor> getRepresentationDescriptorsForProjectId(UUID projectId) {
         // @formatter:off
         return this.representationRepository.findAllByProjectId(projectId).stream()
-                .map(new RepresentationMapper(this.objectMapper)::toRepresentationMetadataDTO)
-                .collect(Collectors.toUnmodifiableList());
+                .map(representationEntity -> {
+                    String kind = representationEntity.getKind();
+                    Optional<Class<? extends IRepresentation>> implementationType = this.representationDeserializerProvider.getImplementationClass(kind);
+                    return new RepresentationMapper(this.objectMapper).toDTO(representationEntity, implementationType.get());
+                })
+                .collect(Collectors.toList());
         // @formatter:on
     }
 

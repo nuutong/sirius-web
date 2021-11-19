@@ -51,6 +51,7 @@ import org.eclipse.sirius.web.services.api.projects.Project;
 import org.eclipse.sirius.web.services.api.projects.ProjectManifest;
 import org.eclipse.sirius.web.services.api.projects.RepresentationManifest;
 import org.eclipse.sirius.web.services.api.representations.IRepresentationService;
+import org.eclipse.sirius.web.services.api.representations.RepresentationDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.info.BuildProperties;
@@ -203,11 +204,11 @@ public class ProjectExportService implements IProjectExportService {
      *             if an I/O error occurred
      */
     private Map<String, RepresentationManifest> addRepresentation(UUID projectId, String projectName, ZipOutputStream zippedout) throws IOException {
-        List<IRepresentationMetadata> representationsDescriptor = this.representationService.getRepresentationDescriptorsForProjectId(projectId);
+        List<RepresentationDescriptor> representationsDescriptor = this.representationService.getRepresentationDescriptorsForProjectId(projectId);
         Map<String, RepresentationManifest> representationManifests = new HashMap<>();
         ResourceSet resourceSet = this.loadAllDocuments(projectId);
 
-        for (IRepresentationMetadata representationDescriptor : representationsDescriptor) {
+        for (RepresentationDescriptor representationDescriptor : representationsDescriptor) {
             RepresentationManifest representationManifest = this.createRepresentationManifest(representationDescriptor, resourceSet);
             UUID representationId = representationDescriptor.getId();
             representationManifests.put(representationId.toString(), representationManifest);
@@ -224,16 +225,16 @@ public class ProjectExportService implements IProjectExportService {
     }
 
     /**
-     * Creates a {@link RepresentationManifest} for the given {@link IRepresentationMetadata}.
+     * Creates a {@link RepresentationManifest} for the given {@link RepresentationDescriptor}.
      *
-     * @param representationMetadata
-     *            The {@link IRepresentationMetadata}
+     * @param representationDescriptor
+     *            The {@link RepresentationDescriptor}
      * @param resourceSet
      *            The {@link ResourceSet} containing all loaded documents
-     * @return the {@link RepresentationManifest} for the given {@link IRepresentationMetadata}
+     * @return the {@link RepresentationManifest} for the given {@link RepresentationDescriptor}
      */
-    private RepresentationManifest createRepresentationManifest(IRepresentationMetadata representationMetadata, ResourceSet resourceSet) {
-        UUID descriptionId = representationMetadata.getDescriptionId();
+    private RepresentationManifest createRepresentationManifest(IRepresentationMetadata representationDescriptor, ResourceSet resourceSet) {
+        UUID descriptionId = representationDescriptor.getDescriptionId();
 
         /*
          * If the given descriptionId does not match with an existing IdMappingEntity, the current representation is
@@ -246,8 +247,8 @@ public class ProjectExportService implements IProjectExportService {
         // @formatter:on
 
         String uriFragment = ""; //$NON-NLS-1$
-        if (representationMetadata instanceof ISemanticRepresentationMetadata) {
-            String targetObjectId = ((ISemanticRepresentationMetadata) representationMetadata).getTargetObjectId();
+        if (representationDescriptor instanceof ISemanticRepresentationMetadata) {
+            String targetObjectId = ((ISemanticRepresentationMetadata) representationDescriptor).getTargetObjectId();
             for (Resource resource : resourceSet.getResources()) {
                 EObject eObject = resource.getEObject(targetObjectId);
                 if (eObject != null) {
@@ -261,7 +262,7 @@ public class ProjectExportService implements IProjectExportService {
         }
         // @formatter:off
         return RepresentationManifest.newRepresentationManifest()
-            .type(representationMetadata.getKind())
+            .type(representationDescriptor.getKind())
             .descriptionURI(descriptionURI)
             .targetObjectURI(uriFragment)
             .build();
