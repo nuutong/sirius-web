@@ -13,10 +13,11 @@
   "private": true,
   "dependencies": {
     "@apollo/client": "3.4.7",
-    "@eclipse-sirius/sirius-components": "0.5.5",
+    "@eclipse-sirius/sirius-components": "file:.yalc/@eclipse-sirius/sirius-components",
     "@material-ui/core": "4.12.3",
     "@material-ui/icons": "4.11.2",
     "@xstate/react": "1.5.1",
+    "flexlayout-react": "^0.6.0",
     "fontsource-roboto": "4.0.0",
     "graphql": "15.5.1",
     "graphql-tag": "2.12.5",
@@ -47,7 +48,7 @@
     "typescript": "4.3.5"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "set BROWSER=chrome && react-scripts start",
     "build": "react-scripts build -- --profile",
     "test": "react-scripts test --modulePaths=src --testResultsProcessor ./node_modules/jest-junit-reporter",
     "ci-test": "react-scripts test --watchAll=false --modulePaths=src --testResultsProcessor ./node_modules/jest-junit-reporter --coverage",
